@@ -70,7 +70,7 @@ export default function Home() {
         </p>
         <button
           onClick={handleGetStarted}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg py-3 px-10 rounded-full shadow-lg hover:from-blue-700 hover:to-blue-800 transition duration-300"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg py-3 px-10 rounded-full shadow-lg hover:from-blue-700 hover:to-blue-800"
         >
           Get Started
         </button>
