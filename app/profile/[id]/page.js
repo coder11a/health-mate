@@ -185,7 +185,7 @@ export default function ProfilePage({ params }) {
         </div>
       </nav>
       
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold text-blue-800">
@@ -345,39 +345,70 @@ export default function ProfilePage({ params }) {
               </div>
             </div>
           ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
-                  <div className="mt-2 space-y-2">
-                    <p className="text-gray-700"><span className="font-medium">Age:</span> {profile.age}</p>
-                    <p className="text-gray-700"><span className="font-medium">Gender:</span> {profile.gender}</p>
-                    <p className="text-gray-700"><span className="font-medium">Relation:</span> {profile.relation}</p>
-                    <p className="text-gray-700"><span className="font-medium">Blood Type:</span> {profile.bloodType || "Not specified"}</p>
+              <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
+                <h3 className="text-lg font-semibold text-blue-800 flex items-center space-x-2 mb-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  <span>Personal Information</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between border-b border-blue-100 pb-2">
+                    <span className="text-sm font-medium text-blue-700">Age</span>
+                    <span className="text-sm text-blue-900">{profile.age}</span>
                   </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Medical Information</h3>
-                  <div className="mt-2 space-y-2">
-                    <div>
-                      <p className="font-medium text-gray-700">Allergies:</p>
-                      <p className="text-gray-600">{profile.allergies || "None specified"}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">Medical Conditions:</p>
-                      <p className="text-gray-600">{profile.medicalConditions || "None specified"}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">Current Medications:</p>
-                      <p className="text-gray-600">{profile.medications || "None specified"}</p>
-                    </div>
+                  <div className="flex justify-between border-b border-blue-100 pb-2">
+                    <span className="text-sm font-medium text-blue-700">Gender</span>
+                    <span className="text-sm text-blue-900">{profile.gender}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-blue-100 pb-2">
+                    <span className="text-sm font-medium text-blue-700">Relation</span>
+                    <span className="text-sm text-blue-900">{profile.relation}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-blue-700">Blood Type</span>
+                    <span className="text-sm text-blue-900">{profile.bloodType || "Not specified"}</span>
                   </div>
                 </div>
               </div>
             </div>
-          )}
-        </div>
+            
+            <div className="space-y-6">
+              <div className="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+                <h3 className="text-lg font-semibold text-indigo-800 flex items-center space-x-2 mb-4">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>Medical Information</span>
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-indigo-700 mb-1">Allergies</h4>
+                    <p className="text-sm text-indigo-900 bg-white/50 p-3 rounded-lg">
+                      {profile.allergies || "None specified"}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-indigo-700 mb-1">Medical Conditions</h4>
+                    <p className="text-sm text-indigo-900 bg-white/50 p-3 rounded-lg">
+                      {profile.medicalConditions || "None specified"}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-indigo-700 mb-1">Current Medications</h4>
+                    <p className="text-sm text-indigo-900 bg-white/50 p-3 rounded-lg">
+                      {profile.medications || "None specified"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
         <MedicineReminder profileId={profileId} />
 
         {/* Medical Reports Section */}

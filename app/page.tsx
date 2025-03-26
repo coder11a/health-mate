@@ -107,7 +107,8 @@ export default function Home() {
           </div>
         </div>
       </div>
-
+<br />
+<br />
       {/* Footer */}
       <footer className="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-8">
         <div className="max-w-7xl mx-auto text-center">
