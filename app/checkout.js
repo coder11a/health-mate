@@ -21,7 +21,7 @@ export async function checkout({ lineItems, customerDetails }) {
         lineItems,
         successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${window.location.origin}/dashboard`,
-        customerEmail: 'aj@gmail.com', // Optional but recommended
+        customerEmail: 'testmail@gmail.com', // Optional but recommended
         billingAddressCollection: 'auto', // Required for Indian exports
      
     });

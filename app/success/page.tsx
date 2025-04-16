@@ -15,6 +15,7 @@ const PaymentSuccessPage: React.FC = () => {
         {/* Simple success message */}
         <h1 className="text-4xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
         <p className="text-xl text-gray-600">Thank you for your purchase</p>
+        <p className="text-xl text-gray-600">You are now on a premium plan!</p>
      
         
         {/* Button to go back to home */}
