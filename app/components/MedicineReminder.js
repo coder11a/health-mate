@@ -11,6 +11,7 @@ export default function MedicineReminder({ profileId }) {
     id: "",
     medicineName: "",
     dosage: "",
+    customDosage: "",
     time: "",
     days: {
       monday: false,
@@ -24,6 +25,20 @@ export default function MedicineReminder({ profileId }) {
     isActive: true,
   });
   const [notificationPermission, setNotificationPermission] = useState("default");
+  const [showAlert, setShowAlert] = useState(false);
+  const [activeAlert, setActiveAlert] = useState(null);
+
+  // Common dosage options
+  const dosageOptions = [
+    "1 tablet",
+    "2 tablets",
+    "5ml",
+    "10ml",
+    "1 capsule",
+    "2 capsules",
+    "1 tsp",
+    "Other"
+  ];
 
   // Request notification permission when component mounts
   useEffect(() => {
@@ -47,10 +62,21 @@ export default function MedicineReminder({ profileId }) {
   useEffect(() => {
     const notificationInterval = setInterval(() => {
       checkForDueReminders();
-    }, 10000); // Check every 30 seconds
+    }, 10000); // Check every 10 seconds
     
     return () => clearInterval(notificationInterval);
   }, [reminders]);
+
+  // Auto-dismiss alert after 8 seconds
+  useEffect(() => {
+    if (showAlert) {
+      const timeout = setTimeout(() => {
+        setShowAlert(false);
+      }, 8000);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [showAlert]);
 
   const loadReminders = () => {
     if (typeof window !== "undefined" && user && profileId) {
@@ -74,6 +100,30 @@ export default function MedicineReminder({ profileId }) {
     setNewReminder((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDosageChange = (e) => {
+    const value = e.target.value;
+    if (value === "Other") {
+      setNewReminder((prev) => ({ 
+        ...prev, 
+        dosage: "Other",
+        customDosage: "" 
+      }));
+    } else {
+      setNewReminder((prev) => ({ 
+        ...prev, 
+        dosage: value,
+        customDosage: "" 
+      }));
+    }
+  };
+
+  const handleCustomDosageChange = (e) => {
+    setNewReminder((prev) => ({
+      ...prev,
+      customDosage: e.target.value
+    }));
+  };
+
   const handleDayToggle = (day) => {
     setNewReminder((prev) => ({
       ...prev,
@@ -86,7 +136,10 @@ export default function MedicineReminder({ profileId }) {
 
   const handleAddReminder = () => {
     // Validate form
-    if (!newReminder.medicineName || !newReminder.dosage || !newReminder.time) {
+    if (!newReminder.medicineName || 
+        (!newReminder.dosage || 
+         (newReminder.dosage === "Other" && !newReminder.customDosage)) || 
+        !newReminder.time) {
       alert("Please fill all required fields.");
       return;
     }
@@ -98,9 +151,12 @@ export default function MedicineReminder({ profileId }) {
       return;
     }
 
+    const finalDosage = newReminder.dosage === "Other" ? newReminder.customDosage : newReminder.dosage;
+    
     const updatedReminder = {
       ...newReminder,
       id: Date.now().toString(),
+      dosage: finalDosage
     };
     
     const updatedReminders = [...reminders, updatedReminder];
@@ -112,6 +168,7 @@ export default function MedicineReminder({ profileId }) {
       id: "",
       medicineName: "",
       dosage: "",
+      customDosage: "",
       time: "",
       days: {
         monday: false,
@@ -205,12 +262,19 @@ export default function MedicineReminder({ profileId }) {
           notification.close();
         };
         
-        // Also show an alert as a fallback
-        alert(`Medicine Reminder: Time to take ${reminder.medicineName} - ${reminder.dosage}`);
+        // Show beautiful in-app alert
+        setActiveAlert(reminder);
+        setShowAlert(true);
+        
+        // Play a gentle sound
+        const audio = new Audio("/notification-sound.mp3");
+        audio.play().catch(e => console.error("Could not play notification sound:", e));
+        
       } catch (error) {
         console.error("Error sending notification:", error);
         // Fallback to alert
-        alert(`Medicine Reminder: Time to take ${reminder.medicineName} - ${reminder.dosage}`);
+        setActiveAlert(reminder);
+        setShowAlert(true);
       }
     }
   };
@@ -247,15 +311,67 @@ export default function MedicineReminder({ profileId }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6 relative">
+      {/* Beautiful Alert Notification */}
+      {showAlert && activeAlert && (
+        <div className="fixed top-4 right-4 left-4 md:left-auto md:right-4 md:w-96 z-50 animate-fade-in">
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden border-l-4 border-blue-500">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 flex justify-between items-center">
+              <h3 className="text-white font-bold flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                Medicine Reminder
+              </h3>
+              <button 
+                onClick={() => setShowAlert(false)}
+                className="text-white hover:text-gray-200 focus:outline-none"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div className="p-4 bg-blue-50">
+              <div className="flex items-center mb-2">
+                <div className="bg-blue-100 p-2 rounded-full mr-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-800 text-lg">{activeAlert.medicineName}</h4>
+                  <p className="text-gray-600">{activeAlert.dosage}</p>
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded-md shadow-sm border border-gray-200">
+                <p className="text-sm text-gray-600">
+                  It's time to take your medication.
+                </p>
+                <div className="mt-2 text-xs text-gray-500 flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {formatTime(activeAlert.time)}
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-blue-800">Medicine Reminders</h2>
         
         {notificationPermission !== "granted" && (
           <button
             onClick={requestNotificationPermission}
-            className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-md hover:bg-yellow-200"
+            className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-md hover:bg-yellow-200 flex items-center"
           >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
             Enable Notifications
           </button>
         )}
@@ -333,15 +449,32 @@ export default function MedicineReminder({ profileId }) {
             
             <div>
               <label className="block text-gray-700 mb-1">Dosage</label>
-              <input
-                type="text"
+              <select
                 name="dosage"
                 value={newReminder.dosage}
-                onChange={handleInputChange}
-                placeholder="e.g. 1 tablet, 5ml"
+                onChange={handleDosageChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
-              />
+              >
+                <option value="">Select dosage</option>
+                {dosageOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              
+              {newReminder.dosage === "Other" && (
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    name="customDosage"
+                    value={newReminder.customDosage}
+                    onChange={handleCustomDosageChange}
+                    placeholder="Enter custom dosage"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              )}
             </div>
             
             <div>
@@ -395,7 +528,16 @@ export default function MedicineReminder({ profileId }) {
         </div>
       )}
       
-
+      {/* Add custom CSS for the fade-in animation */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

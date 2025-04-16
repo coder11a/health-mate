@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { checkout } from "../checkout"; 
 
 export default function Dashboard() {
   const { isSignedIn, user } = useUser();
@@ -11,6 +12,7 @@ export default function Dashboard() {
   const [familyProfiles, setFamilyProfiles] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [premium, setpremium] = useState(false);
   
   useEffect(() => {
     if (!isSignedIn) {
@@ -40,6 +42,21 @@ export default function Dashboard() {
     }
   };
 
+  const deleteProfile = (profileId) => {
+    const updatedProfiles = familyProfiles.filter(profile => profile.id !== profileId);
+    saveProfiles(updatedProfiles);
+  };
+  const handleCheckout = () => {
+    checkout({
+      lineItems: [{price: "price_1REPMoRe1aeopDKqPPYaMY0P", quantity: 1}],
+      onSuccess: () => {
+        setpremium(true);
+      },
+      onError: (error) => {
+        console.error("Checkout error:", error);
+      },
+    })
+  };
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen pt-24 pb-10">
       {/* Navbar */}
@@ -49,10 +66,17 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold tracking-tight">Health Mate</h1>
           </Link>
           <div className="flex items-center space-x-6">
+          <button onClick={handleCheckout} className="bg-yellow-500 text-black px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
+            {premium ? "Premium" : "Premium"}
+          </button>
             <span className="text-lg font-medium">
               {user?.firstName || "User"}
             </span>
           </div>
+        </div>
+        <div>
+
+       
         </div>
       </nav>
       
@@ -123,7 +147,7 @@ export default function Dashboard() {
                   <div>
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Allergies</p>
                     <p className="text-gray-700 font-medium truncate" title={profile.allergies}>
-                      {profile.allergies ? profile.allergies.split(',')[0] : 'None'}
+                      {profile.allergies ? profile.allergies.split(',')[0] + (profile.allergies.includes(',') ? '...' : '') : 'None'}
                     </p>
                   </div>
                 </div>
@@ -139,7 +163,6 @@ export default function Dashboard() {
                     </svg>
                     View
                   </button>
-            
                 </div>
               </div>
             </div>
@@ -170,29 +193,165 @@ export default function Dashboard() {
 }
 
 function CreateProfileModal({ onClose, onSave }) {
+  const COMMON_ALLERGIES = [
+    "Peanuts", 
+    "Tree nuts", 
+    "Milk", 
+    "Eggs", 
+    "Wheat", 
+    "Soy", 
+    "Fish", 
+    "Shellfish", 
+    "Dust mites", 
+    "Pollen"
+  ];
+  
+  const COMMON_MEDICAL_CONDITIONS = [
+    "Asthma",
+    "Diabetes",
+    "Hypertension",
+    "Heart Disease",
+    "Arthritis",
+    "Migraine",
+    "Thyroid Disorder",
+    "Depression",
+    "Anxiety",
+    "GERD"
+  ];
+  
+  const COMMON_MEDICATIONS = [
+    "Lisinopril",
+    "Atorvastatin",
+    "Levothyroxine",
+    "Metformin",
+    "Amlodipine",
+    "Metoprolol",
+    "Omeprazole",
+    "Simvastatin",
+    "Losartan",
+    "Albuterol"
+  ];
+
   const [profileData, setProfileData] = useState({
     name: "",
     age: "",
     gender: "",
     relation: "",
     bloodType: "",
-    allergies: "",
-    medicalConditions: "",
-    medications: ""
+    allergies: [],
+    medicalConditions: [],
+    medications: []
   });
+
+  const [showOtherAllergy, setShowOtherAllergy] = useState(false);
+  const [showOtherCondition, setShowOtherCondition] = useState(false);
+  const [showOtherMedication, setShowOtherMedication] = useState(false);
+  const [otherAllergy, setOtherAllergy] = useState("");
+  const [otherCondition, setOtherCondition] = useState("");
+  const [otherMedication, setOtherMedication] = useState("");
   
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleAllergyChange = (e) => {
+    const value = e.target.value;
+    if (value === "other") {
+      setShowOtherAllergy(true);
+    } else if (value !== "") {
+      // Add the allergy if it's not already in the array
+      if (!profileData.allergies.includes(value)) {
+        setProfileData(prev => ({
+          ...prev,
+          allergies: [...prev.allergies, value]
+        }));
+      }
+    }
+  };
+
+  const handleMedicalConditionChange = (e) => {
+    const value = e.target.value;
+    if (value === "other") {
+      setShowOtherCondition(true);
+    } else if (value !== "") {
+      if (!profileData.medicalConditions.includes(value)) {
+        setProfileData(prev => ({
+          ...prev,
+          medicalConditions: [...prev.medicalConditions, value]
+        }));
+      }
+    }
+  };
+
+  const handleMedicationChange = (e) => {
+    const value = e.target.value;
+    if (value === "other") {
+      setShowOtherMedication(true);
+    } else if (value !== "") {
+      if (!profileData.medications.includes(value)) {
+        setProfileData(prev => ({
+          ...prev,
+          medications: [...prev.medications, value]
+        }));
+      }
+    }
+  };
+
+  const addOtherAllergy = () => {
+    if (otherAllergy.trim() !== "" && !profileData.allergies.includes(otherAllergy.trim())) {
+      setProfileData(prev => ({
+        ...prev,
+        allergies: [...prev.allergies, otherAllergy.trim()]
+      }));
+      setOtherAllergy("");
+      setShowOtherAllergy(false);
+    }
+  };
+
+  const addOtherCondition = () => {
+    if (otherCondition.trim() !== "" && !profileData.medicalConditions.includes(otherCondition.trim())) {
+      setProfileData(prev => ({
+        ...prev,
+        medicalConditions: [...prev.medicalConditions, otherCondition.trim()]
+      }));
+      setOtherCondition("");
+      setShowOtherCondition(false);
+    }
+  };
+
+  const addOtherMedication = () => {
+    if (otherMedication.trim() !== "" && !profileData.medications.includes(otherMedication.trim())) {
+      setProfileData(prev => ({
+        ...prev,
+        medications: [...prev.medications, otherMedication.trim()]
+      }));
+      setOtherMedication("");
+      setShowOtherMedication(false);
+    }
+  };
+
+  const removeItem = (field, item) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: prev[field].filter(i => i !== item)
+    }));
+  };
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(profileData);
+    // Convert arrays to comma-separated strings before saving
+    const formattedData = {
+      ...profileData,
+      allergies: profileData.allergies.join(', '),
+      medicalConditions: profileData.medicalConditions.join(', '),
+      medications: profileData.medications.join(', ')
+    };
+    onSave(formattedData);
   };
   
   return (
-    <div className="p-6">
+    <div className="p-6 max-h-[90vh] overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-2xl font-bold text-gray-800">Create Family Profile</h3>
         <button
@@ -289,37 +448,166 @@ function CreateProfileModal({ onClose, onSave }) {
             </div>
           </div>
           
+          {/* Allergies Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Allergies</label>
-            <textarea
-              name="allergies"
-              value={profileData.allergies}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              rows="2"
-            ></textarea>
+            <div className="flex mb-2">
+              <select
+                onChange={handleAllergyChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value=""
+              >
+                <option value="">Select an allergy</option>
+                {COMMON_ALLERGIES.map((allergy) => (
+                  <option key={allergy} value={allergy}>{allergy}</option>
+                ))}
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            {showOtherAllergy && (
+              <div className="flex mb-2">
+                <input
+                  type="text"
+                  value={otherAllergy}
+                  onChange={(e) => setOtherAllergy(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter allergy"
+                />
+                <button
+                  type="button"
+                  onClick={addOtherAllergy}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+            
+            {profileData.allergies.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {profileData.allergies.map((item, index) => (
+                  <div key={index} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full flex items-center">
+                    <span>{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem('allergies', item)}
+                      className="ml-2 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
+          {/* Medical Conditions Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Medical Conditions</label>
-            <textarea
-              name="medicalConditions"
-              value={profileData.medicalConditions}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              rows="2"
-            ></textarea>
+            <div className="flex mb-2">
+              <select
+                onChange={handleMedicalConditionChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value=""
+              >
+                <option value="">Select a medical condition</option>
+                {COMMON_MEDICAL_CONDITIONS.map((condition) => (
+                  <option key={condition} value={condition}>{condition}</option>
+                ))}
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            {showOtherCondition && (
+              <div className="flex mb-2">
+                <input
+                  type="text"
+                  value={otherCondition}
+                  onChange={(e) => setOtherCondition(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter medical condition"
+                />
+                <button
+                  type="button"
+                  onClick={addOtherCondition}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+            
+            {profileData.medicalConditions.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {profileData.medicalConditions.map((item, index) => (
+                  <div key={index} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full flex items-center">
+                    <span>{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem('medicalConditions', item)}
+                      className="ml-2 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
+          {/* Medications Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Medications</label>
-            <textarea
-              name="medications"
-              value={profileData.medications}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              rows="2"
-            ></textarea>
+            <div className="flex mb-2">
+              <select
+                onChange={handleMedicationChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value=""
+              >
+                <option value="">Select a medication</option>
+                {COMMON_MEDICATIONS.map((medication) => (
+                  <option key={medication} value={medication}>{medication}</option>
+                ))}
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            {showOtherMedication && (
+              <div className="flex mb-2">
+                <input
+                  type="text"
+                  value={otherMedication}
+                  onChange={(e) => setOtherMedication(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter medication"
+                />
+                <button
+                  type="button"
+                  onClick={addOtherMedication}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+            
+            {profileData.medications.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {profileData.medications.map((item, index) => (
+                  <div key={index} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full flex items-center">
+                    <span>{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem('medications', item)}
+                      className="ml-2 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         
