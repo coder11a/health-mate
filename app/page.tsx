@@ -22,7 +22,8 @@ export default function Home() {
       {/* Navbar */}
       <nav className="bg-gradient-to-r from-blue-500 to-blue-800 p-5 shadow-md text-white fixed w-full z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/">
+          <Link href="/" className="flex items-center space-x-2">
+          <img src="/logo.png" className="h-8 w-8" alt="logo" />
             <h1 className="text-3xl font-extrabold tracking-wide hover:text-blue-100 transition duration-300">
               Health Mate
             </h1>
