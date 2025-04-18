@@ -267,7 +267,7 @@ export default function ProfilePage({ params }) {
   }
   
   return (
-    <div className="bg-gray-50 min-h-screen pt-24 pb-10">
+    <div className="bg-gray-50 min-h-screen pt-24 pb-10 text-black">
       {/* Navbar */}
       <nav className="bg-gradient-to-r from-blue-500 to-blue-700 p-5 shadow-md text-white fixed w-full z-50 top-0">
         <div className="max-w-7xl mx-auto flex justify-between items-center">

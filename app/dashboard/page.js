@@ -365,7 +365,7 @@ function CreateProfileModal({ onClose, onSave }) {
       </div>
       
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className="space-y-4 text-black">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input
