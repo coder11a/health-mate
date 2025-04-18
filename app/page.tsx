@@ -62,8 +62,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className="flex flex-col items-center justify-center flex-grow text-center px-4 py-32 bg-gradient-to-br from-blue-100 to-white text-black">
-        <h2 className="text-5xl font-extrabold mb-6">
-          Your Smart Family Health Companion
+        <h2 className="text-5xl font-extrabold mb-6">Smart Family Health Companion
         </h2>
         <p className="text-lg mb-8 max-w-2xl text-gray-700 leading-relaxed">
           Create personalized family profiles, track medical reports, and get notified for your medications, all in one place. Your health, organized!
@@ -84,21 +83,21 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+            <div className="bg-gradient-to-br cursor-pointer from-blue-50 to-blue-100 p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
               <h3 className="text-xl font-bold text-blue-600 mb-4">Family Profiles</h3>
               <p className="text-gray-700">
                 Create and manage personalized profiles for each family member, ensuring everyone's health is tracked efficiently.
               </p>
             </div>
             {/* Feature 2 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+            <div className="bg-gradient-to-br cursor-pointer from-blue-50 to-blue-100 p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
               <h3 className="text-xl font-bold text-blue-600 mb-4">Medicine Reminders</h3>
               <p className="text-gray-700">
                 Never miss a dose with timely reminders for medications, keeping your family's health on track.
               </p>
             </div>
             {/* Feature 3 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+            <div className="bg-gradient-to-br cursor-pointer from-blue-50 to-blue-100 p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
               <h3 className="text-xl font-bold text-blue-600 mb-4">Medical Reports</h3>
               <p className="text-gray-700">
                 Easily upload, track, and manage medical reports, ensuring all health data is organized and accessible.
@@ -114,14 +113,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-lg">&copy; {new Date().getFullYear()} Health Mate. All rights reserved.</p>
           <div className="mt-4 space-x-6">
-            <Link href="#" className="text-white hover:text-gray-300 transition duration-300">
+            <Link href="/privacy-policy" className="text-white hover:text-gray-300 transition duration-300">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-white hover:text-gray-300 transition duration-300">
+            <Link href="/terms-conditions" className="text-white hover:text-gray-300 transition duration-300">
               Terms of Service
             </Link>
-            <Link href="#" className="text-white hover:text-gray-300 transition duration-300">
+            <Link href="/contact-us" className="text-white hover:text-gray-300 transition duration-300">
               Contact Us
+            </Link>
+            <Link href="about-us" className="text-white hover:text-gray-300 transition duration-300">
+              About Us
             </Link>
           </div>
         </div>

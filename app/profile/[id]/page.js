@@ -258,7 +258,7 @@ export default function ProfilePage({ params }) {
         - Schedule follow-up appointment in 3 months
         - Consider nutritional counseling for cholesterol management
         - Continue regular exercise program`);
-      }, 2000);
+      }, 3000);
     });
   };
 
